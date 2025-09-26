@@ -9,7 +9,6 @@
         "@mui/material": "^7.3.2",
         "@mui/x-data-grid-premium": "^8.12.1",
         "@mui/x-license": "^8.12.0",
-        "@types/node": "^24.5.2",
         "@types/react": "^19.1.14",
         "@types/react-dom": "^19.1.9",
         "papaparse": "^5.4.1",
@@ -20,10 +19,10 @@
         "web-vitals": "^5.1.0"
     },
     "scripts": {
-        "start": "react-scripts start",
-        "build": "react-scripts build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject"
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
     },
     "eslintConfig": {
         "extends": [
@@ -44,6 +43,9 @@
         ]
     },
     "devDependencies": {
-        "@types/papaparse": "^5.3.16"
+        "@types/node": "^24.5.2",
+        "@types/papaparse": "^5.3.16",
+        "@vitejs/plugin-react": "^5.0.3",
+        "vite": "^7.1.7"
     }
 }

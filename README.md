@@ -40,9 +40,12 @@ This application is built with modern React and Material-UI technologies:
 - **@mui/x-license** - MUI X licensing
 - **papaparse** - CSV parsing and generation
 - **emotion** - CSS-in-JS styling solution
+- **vite** - Fast build tool and development server
+- **@vitejs/plugin-react** - Vite plugin for React support
 
 ### Development Dependencies
-- **react-scripts** - Create React App build tools
+- **vite** - Fast build tool and development server
+- **@vitejs/plugin-react** - Vite plugin for React support
 - **@types/papaparse** - TypeScript definitions for papaparse
 
 ## 📋 Prerequisites
@@ -73,9 +76,9 @@ yarn install
 ### 3. Start the Development Server
 
 ```bash
-npm start
+npm run dev
 # or
-yarn start
+yarn dev
 ```
 
 The application will open in your browser at `http://localhost:3000`.
@@ -197,6 +200,7 @@ src/
 - **MUI X DataGrid Premium**: Advanced data grid with selection, filtering, and export
 - **PapaParse**: Robust CSV parsing and generation
 - **TypeScript**: Type safety and better development experience
+- **Vite**: Fast build tool with hot module replacement and optimized production builds
 
 ## 🐛 Troubleshooting
 
