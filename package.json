@@ -1,0 +1,49 @@
+{
+    "name": "ba-csv-mapping",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@emotion/react": "^11.11.3",
+        "@emotion/styled": "^11.11.5",
+        "@mui/icons-material": "^7.3.2",
+        "@mui/material": "^7.3.2",
+        "@mui/x-data-grid-premium": "^8.12.1",
+        "@mui/x-license": "^8.12.0",
+        "@types/node": "^24.5.2",
+        "@types/react": "^19.1.14",
+        "@types/react-dom": "^19.1.9",
+        "papaparse": "^5.4.1",
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
+        "react-scripts": "5.0.1",
+        "typescript": "^4.9.2",
+        "web-vitals": "^5.1.0"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "@types/papaparse": "^5.3.16"
+    }
+}
