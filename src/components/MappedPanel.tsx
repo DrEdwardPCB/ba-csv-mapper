@@ -15,6 +15,7 @@ import { DataGridPremium, GridColDef, GridActionsCellItem } from '@mui/x-data-gr
 import { MappedRow } from '../types';
 import { downloadCSV } from '../utils/csvParser';
 import CustomToolbar from './CustomToolbar';
+import { useColumnWidths } from '../hooks/useColumnWidths';
 
 interface MappedPanelProps {
   data: MappedRow[];
@@ -33,6 +34,9 @@ const MappedPanel: React.FC<MappedPanelProps> = ({
 }) => {
   const [editingRemarks, setEditingRemarks] = useState<string | null>(null);
   const [remarksValue, setRemarksValue] = useState('');
+  
+  // Column width management for mapped panel
+  const mappedColumnWidths = useColumnWidths('mapped-grid');
 
   const columns: GridColDef[] = useMemo(() => {
     const cols: GridColDef[] = [];
@@ -42,7 +46,7 @@ const MappedPanel: React.FC<MappedPanelProps> = ({
       cols.push({
         field: `source_${col}`,
         headerName: `source_${col}`,
-        width: 150,
+        width: mappedColumnWidths.getColumnWidth(`source_${col}`),
         renderCell: (params) => (
           <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {String(params.value || '')}
@@ -56,7 +60,7 @@ const MappedPanel: React.FC<MappedPanelProps> = ({
       cols.push({
         field: `target_${col}`,
         headerName: `target_${col}`,
-        width: 150,
+        width: mappedColumnWidths.getColumnWidth(`target_${col}`),
         renderCell: (params) => (
           <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {String(params.value || '')}
@@ -69,7 +73,7 @@ const MappedPanel: React.FC<MappedPanelProps> = ({
     cols.push({
       field: 'remarks',
       headerName: 'Remarks',
-      width: 200,
+      width: mappedColumnWidths.getColumnWidth('remarks'),
       renderCell: (params) => {
         const isEditing = editingRemarks === params.id;
         return isEditing ? (
@@ -119,7 +123,7 @@ const MappedPanel: React.FC<MappedPanelProps> = ({
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',
-      width: 100,
+      width: mappedColumnWidths.getColumnWidth('actions'),
       getActions: (params) => [
         <GridActionsCellItem
           icon={
@@ -239,6 +243,9 @@ const MappedPanel: React.FC<MappedPanelProps> = ({
             toolbar: CustomToolbar,
           }}
           showToolbar
+          onColumnWidthChange={(params) => {
+            mappedColumnWidths.handleColumnWidthChange(params.colDef.field, params.width);
+          }}
         />
       </Box>
     </Paper>

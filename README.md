@@ -12,6 +12,10 @@ Business Analysts often face the challenging task of mapping data between differ
 - **Export Capabilities**: Generates mapped data in CSV format for further processing
 - **User-Friendly Interface**: Intuitive drag-and-drop style interface with search and filtering
 
+## 🌐 Live Demo
+
+The application is deployed and available at: [https://dredwardpcb.github.io/ba-csv-mapper/](https://dredwardpcb.github.io/ba-csv-mapper/)
+
 ## 🚀 Features
 
 - **Three-Panel Layout**: Source data, Target data, and Mapped results
@@ -21,6 +25,8 @@ Business Analysts often face the challenging task of mapping data between differ
 - **One-to-Many Mapping**: Map single records to multiple targets
 - **Remarks System**: Add notes and comments to mapped records
 - **Export Functionality**: Download mapped data as CSV
+- **Column Width Persistence**: Column widths are saved and restored during your session
+- **Visual Mapping Indicators**: Mapped records are highlighted with green background in source and target panels
 - **Real-time Validation**: Visual indicators for mapped vs unmapped records
 
 ## 🛠️ Dependencies

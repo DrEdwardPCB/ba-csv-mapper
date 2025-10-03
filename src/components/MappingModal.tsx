@@ -13,8 +13,9 @@ import {
 } from '@mui/material';
 import { DataGridPremium, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid-premium';
 import { Search as SearchIcon } from '@mui/icons-material';
-import { CSVRow } from '../types';
+import { CSVRow, MappedRow } from '../types';
 import CustomToolbar from './CustomToolbar';
+import { useColumnWidths } from '../hooks/useColumnWidths';
 interface MappingModalProps {
   open: boolean;
   onClose: () => void;
@@ -25,6 +26,7 @@ interface MappingModalProps {
   targetColumns: string[];
   isFromSource: boolean;
   selectedRowId?: string;
+  mappedData: MappedRow[];
 }
 
 const MappingModal: React.FC<MappingModalProps> = ({
@@ -36,13 +38,31 @@ const MappingModal: React.FC<MappingModalProps> = ({
   sourceColumns,
   targetColumns,
   isFromSource,
-  selectedRowId,
+  mappedData,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>({type:'include', ids:new Set([])});
+  
+  // Column width management for mapping modal
+  const modalColumnWidths = useColumnWidths('mapping-modal-grid');
 
   const displayData = isFromSource ? targetData : sourceData;
   const displayColumns = isFromSource ? targetColumns : sourceColumns;
+
+  // Mapping detection logic
+  const isRowMapped = (rowId: string) => {
+    if (isFromSource) {
+      // When mapping from source, check if target row is already mapped
+      return mappedData.some(row => 
+        row.targetData?.id === rowId && row.sourceData !== null
+      );
+    } else {
+      // When mapping from target, check if source row is already mapped
+      return mappedData.some(row => 
+        row.sourceData?.id === rowId && row.targetData !== null
+      );
+    }
+  };
 
   const filteredData = useMemo(() => {
     if (!searchTerm) return displayData;
@@ -57,12 +77,25 @@ const MappingModal: React.FC<MappingModalProps> = ({
   const columns: GridColDef[] = displayColumns.map((col) => ({
     field: col,
     headerName: col,
-    width: 150,
-    renderCell: (params) => (
-      <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        {String(params.value || '')}
-      </Box>
-    ),
+    width: modalColumnWidths.getColumnWidth(col),
+    renderCell: (params) => {
+      const isMapped = isRowMapped(params.row.id);
+      return (
+        <Box sx={{ 
+          overflow: 'hidden', 
+          textOverflow: 'ellipsis',
+          backgroundColor: isMapped ? 'rgba(76, 175, 80, 0.1)' : 'transparent',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          {String(params.value || '')}
+        </Box>
+      );
+    },
   }));
 
   const handleConfirm = () => {
@@ -124,6 +157,9 @@ const MappingModal: React.FC<MappingModalProps> = ({
               toolbar: CustomToolbar,
             }}
             showToolbar
+            onColumnWidthChange={(params) => {
+              modalColumnWidths.handleColumnWidthChange(params.colDef.field, params.width);
+            }}
           />
         </Box>
       </DialogContent>

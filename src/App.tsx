@@ -15,6 +15,7 @@ import { parseCSV } from './utils/csvParser';
 import MappedPanel from './components/MappedPanel';
 import MappingModal from './components/MappingModal';
 import CustomToolbar from './components/CustomToolbar';
+import { useColumnWidths } from './hooks/useColumnWidths';
 
 const App: React.FC = () => {
   const [sourceData, setSourceData] = useState<PanelData>({ data: [], columns: [] });
@@ -27,6 +28,10 @@ const App: React.FC = () => {
     isFromSource: boolean;
     selectedRowId?: string;
   }>({ open: false, isFromSource: false });
+
+  // Column width management for different grids
+  const sourceColumnWidths = useColumnWidths('source-grid');
+  const targetColumnWidths = useColumnWidths('target-grid');
 
   // Generate initial full outer join when data changes
   const generateInitialMappedData = useCallback(() => {
@@ -211,30 +216,69 @@ const App: React.FC = () => {
     );
   };
 
+  // Helper functions to check if a row is mapped
+  const isSourceRowMapped = useCallback((sourceId: string) => {
+    return mappedData.some(row => 
+      row.sourceData?.id === sourceId && row.targetData !== null
+    );
+  }, [mappedData]);
+
+  const isTargetRowMapped = useCallback((targetId: string) => {
+    return mappedData.some(row => 
+      row.targetData?.id === targetId && row.sourceData !== null
+    );
+  }, [mappedData]);
+
   const sourceColumns: GridColDef[] = sourceData.columns.map(col => ({
     field: col,
     headerName: col,
-    width: 150,
-    renderCell: (params) => (
-      <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        {String(params.value || '')}
-      </Box>
-    ),
+    width: sourceColumnWidths.getColumnWidth(col),
+    renderCell: (params) => {
+      const isMapped = isSourceRowMapped(params.row.id);
+      return (
+        <Box sx={{ 
+          overflow: 'hidden', 
+          textOverflow: 'ellipsis',
+          backgroundColor: isMapped ? 'rgba(76, 175, 80, 0.1)' : 'transparent',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          {String(params.value || '')}
+        </Box>
+      );
+    },
   }));
 
   const targetColumns: GridColDef[] = targetData.columns.map(col => ({
     field: col,
     headerName: col,
-    width: 150,
-    renderCell: (params) => (
-      <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        {String(params.value || '')}
-      </Box>
-    ),
+    width: targetColumnWidths.getColumnWidth(col),
+    renderCell: (params) => {
+      const isMapped = isTargetRowMapped(params.row.id);
+      return (
+        <Box sx={{ 
+          overflow: 'hidden', 
+          textOverflow: 'ellipsis',
+          backgroundColor: isMapped ? 'rgba(76, 175, 80, 0.1)' : 'transparent',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          {String(params.value || '')}
+        </Box>
+      );
+    },
   }));
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth={false} sx={{ py: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center">
         CSV Mapping Tool
       </Typography>
@@ -249,7 +293,7 @@ const App: React.FC = () => {
         {/* Source and Target Data Panels */}
         <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
           {/* Source Data Panel */}
-          <Box sx={{ flex: '1 1 400px', minWidth: '400px' }}>
+          <Box sx={{ flex: '1 1 400px', minWidth: '400px', overflow: 'scroll' }}>
             <Paper elevation={2} sx={{ height: 500, display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
               <Typography variant="h6">Source Data</Typography>
@@ -283,16 +327,29 @@ const App: React.FC = () => {
                     {
                       field: 'actions',
                       headerName: 'Actions',
-                      width: 100,
-                      renderCell: (params) => (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => handleMapRows(true, params.id as string)}
-                        >
-                          Map
-                        </Button>
-                      ),
+                      width: sourceColumnWidths.getColumnWidth('actions'),
+                      renderCell: (params) => {
+                        const isMapped = isSourceRowMapped(params.row.id);
+                        return (
+                          <Box sx={{ 
+                            backgroundColor: isMapped ? 'rgba(76, 175, 80, 0.1)' : 'transparent',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => handleMapRows(true, params.id as string)}
+                            >
+                              Map
+                            </Button>
+                          </Box>
+                        );
+                      },
                     },
                   ]}
                   getRowId={(row) => row.id}
@@ -301,6 +358,9 @@ const App: React.FC = () => {
                     toolbar: CustomToolbar,
                   }}
                   showToolbar
+                  onColumnWidthChange={(params) => {
+                    sourceColumnWidths.handleColumnWidthChange(params.colDef.field, params.width);
+                  }}
                 />
               ) : (
                 <Box display="flex" justifyContent="center" alignItems="center" height="100%">
@@ -314,7 +374,7 @@ const App: React.FC = () => {
           </Box>
 
         {/* Target Data Panel */}
-        <Box sx={{ flex: '1 1 400px', minWidth: '400px' }}>
+        <Box sx={{ flex: '1 1 400px', minWidth: '400px', overflow: 'scroll' }}>
           <Paper elevation={2} sx={{ height: 500, display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
               <Typography variant="h6">Target Data</Typography>
@@ -348,16 +408,29 @@ const App: React.FC = () => {
                     {
                       field: 'actions',
                       headerName: 'Actions',
-                      width: 100,
-                      renderCell: (params) => (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => handleMapRows(false, params.id as string)}
-                        >
-                          Map
-                        </Button>
-                      ),
+                      width: targetColumnWidths.getColumnWidth('actions'),
+                      renderCell: (params) => {
+                        const isMapped = isTargetRowMapped(params.row.id);
+                        return (
+                          <Box sx={{ 
+                            backgroundColor: isMapped ? 'rgba(76, 175, 80, 0.1)' : 'transparent',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => handleMapRows(false, params.id as string)}
+                            >
+                              Map
+                            </Button>
+                          </Box>
+                        );
+                      },
                     },
                   ]}
                   getRowId={(row) => row.id}
@@ -366,6 +439,9 @@ const App: React.FC = () => {
                     toolbar: CustomToolbar,
                   }}
                   showToolbar
+                  onColumnWidthChange={(params) => {
+                    targetColumnWidths.handleColumnWidthChange(params.colDef.field, params.width);
+                  }}
                 />
               ) : (
                 <Box display="flex" justifyContent="center" alignItems="center" height="100%">
@@ -402,6 +478,7 @@ const App: React.FC = () => {
         targetColumns={targetData.columns}
         isFromSource={mappingModal.isFromSource}
         selectedRowId={mappingModal.selectedRowId}
+        mappedData={mappedData}
       />
     </Container>
   );
